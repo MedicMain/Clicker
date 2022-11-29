@@ -7,7 +7,8 @@ cash = 0.00
 day = 0
 year = 18
 food = 1
-radio = False
+radio = 0
+guitar = 0
 pygame.font.init()
 
 
@@ -39,13 +40,14 @@ def clicklocation(a, b, c, d):
                 return True
             
 def continuegame():
-    global cash, day, year, food, radio
+    global cash, day, year, food, radio, guitar
     filename = open('clicker.txt', 'r')
     cash = float(filename.readline())
     day = int(filename.readline())
     year = int(filename.readline())
     food = int(filename.readline())
-    radio = bool(filename.readline())
+    radio = int(filename.readline())
+    guitar = int(filename.readline())
     filename.close()
                 
     
@@ -59,6 +61,7 @@ def font(t, s=72, c=(255,255,0), b=False, i=False):
     font = pygame.font.SysFont("Arial", 72)
     text = font.render(str(round(cash, 2)), True, ((153, 88, 42)))
     return text
+
 
 def dailycost():
     global cash
@@ -99,22 +102,43 @@ def filesave():
         filename.write("\n")
         filename.write(str(food))
         filename.write("\n")
-        filename.write(str(bool(radio)))
+        filename.write(str(radio))
+        filename.write("\n")
+        filename.write(str(guitar))
         filename.close()
             
         exit()    
         
 def dancer():
     global cash
-    if radio == True:
+    if radio == 1:
         dancer_earnings = round(random.uniform(0.00, 6.00), 2)
         cash += dancer_earnings
         time()
         dailycost()
                
+def guitarplayer():
+    global cash
+    if guitar == 1:
+        guitar_earnings = round(random.uniform(0.00, 10.00), 2)
+        cash += guitar_earnings
+        time()
+        dailycost()        
+
+def streetstore(item, value):
+    global cash
+    x = 0
+    if value == 0:
+        if item == "radio":
+            x = 50
+        
+        if item == "guitar":
+            x = 100
         
         
-        
+        cash -= x
+        return True
+   
 startup = True               
 while startup == True:
     
@@ -188,6 +212,9 @@ while streetjobs == True:
     button(110, 170, 50, 50)
     screen.blit(printing(20, "Dancer", 0, 0, 0), (20, 170))
     
+    button(110, 240, 50, 50)
+    screen.blit(printing(20, "Guitar Player", 0, 0, 0), (20, 240))
+    
        
     for event in pygame.event.get():
         
@@ -198,7 +225,11 @@ while streetjobs == True:
                  
             if clicklocation(110, 170, 50, 50) == True:
                 dancer()
-               
+            
+            if clicklocation(110, 240, 50, 50) == True:
+                
+                guitarplayer() 
+                  
         filesave()
       
     pygame.display.flip()    
@@ -221,23 +252,35 @@ while store == True:
     
 while street_item_store == True:
     clear_screen()
-    
+
     button(100, 100, 50, 50)
     screen.blit(printing(20, "radio", 0, 0, 0), (10, 100))
     screen.blit(printing(20, "Cost: 50", 0, 0, 0), (10, 120))
+    
+    button(100, 150, 50, 50)
+    screen.blit(printing(20, "guitar", 0, 0, 0), (10, 150))
+    screen.blit(printing(20, "Cost: 100", 0, 0, 0), (10, 170))
+    
     for event in pygame.event.get():
         if pygame.mouse.get_pressed() == (1, 0, 0):
             if clicklocation(100, 100, 50, 50) == True:
-                if radio == True:
-                    screen.blit(printing(20, "Already bought", 0, 0, 0), (10, 50))
-                    print('hi')
-                if radio == False:
-                    if cash >= 50.00:
-                        cash = cash - 50.00
-                        radio = True
-                        print('llllllll')
+                if streetstore("radio", radio) == True:
+                    radio = 1
                 
+            if clicklocation(100, 150, 50, 50) == True:
+                if guitar == 1:
+                    screen.blit(printing(20, "Already bought", 0, 0, 0), (10, 10))
+                if guitar == 0:
+                    if cash >= 100.00:
+                        cash -= 100.00
+                        guitar = 1
+                        
+                        
+                    
+                       
         filesave()
     pygame.display.flip()
+
+    
 
     
